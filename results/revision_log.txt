@@ -1,0 +1,120 @@
+========================================================================
+AICSET revision analysis
+========================================================================
+
+loaded 7 attribution sets over 799 molecules:
+   AttentiveFP / node occlusion
+   AttentiveFP / grad x input
+   MoLFormer / integrated grad.
+   Control: random atoms
+   Control: random via bit-map
+   Random forest / bit occlusion
+   MoLFormer / token occlusion
+
+========================================================================
+R3  narrow pharmacophore: N1 (direct Met793 H-bond) vs N1+N3
+========================================================================
+Literature: the quinazoline N1 accepts the direct hinge hydrogen bond
+from the Met793 backbone amide; N3 makes a WATER-MEDIATED contact with
+threonine. A strict "direct interaction" target is therefore N1 alone.
+
+reference-drug check (expect exactly one N1 and one N3 per quinazoline):
+   gefitinib    N1=1 N3=1 warheadC=0
+   erlotinib    N1=1 N3=1 warheadC=0
+   lapatinib    N1=1 N3=1 warheadC=0
+   afatinib     N1=1 N3=1 warheadC=2
+   osimertinib  N1=0 N3=0 warheadC=2
+   OK
+
+molecules with a strict (N1) target : 236
+molecules with the N1+N3 target     : 236
+mean target size, N1   : 5.2% of atoms
+mean target size, N1+N3: 7.0% of atoms
+mean target size, broad: 27.5% of atoms
+
+========================================================================
+R5  paired broad-vs-narrow enrichment on a MATCHED compound set
+R6  bootstrap 95% CIs and sample sizes
+========================================================================
+
+--- narrow target: N1+N3 (as submitted) ---
+matched compounds (carry BOTH a broad and a narrow motif): n = 236
+                 model_method   n  broad  narrow  selectivity_paired paired_p_narrow_vs_broad
+ AttentiveFP / node occlusion 236  0.919   2.161               2.452                  9.2e-24
+   AttentiveFP / grad x input 236  0.922   1.961               2.377                  1.5e-27
+ MoLFormer / integrated grad. 236  0.909   1.020               1.164                     0.13
+        Control: random atoms 236  0.976   0.983               1.007                     0.84
+  Control: random via bit-map 236  1.008   1.096               1.083                     0.31
+Random forest / bit occlusion 236  1.361   2.297               1.629                    5e-24
+  MoLFormer / token occlusion 236  0.947   1.950               1.998                  1.5e-26
+   -> paired_n1n3.csv (full table with CIs)
+
+--- narrow target: N1 only (strict) ---
+matched compounds (carry BOTH a broad and a narrow motif): n = 236
+                 model_method   n  broad  narrow  selectivity_paired paired_p_narrow_vs_broad
+ AttentiveFP / node occlusion 236  0.919   2.162               2.461                  4.6e-20
+   AttentiveFP / grad x input 236  0.922   1.965               2.382                  4.7e-25
+ MoLFormer / integrated grad. 236  0.909   0.966               1.097                     0.54
+        Control: random atoms 236  0.976   1.002               1.023                     0.75
+  Control: random via bit-map 236  1.008   1.087               1.073                     0.64
+Random forest / bit occlusion 236  1.361   2.221               1.571                  4.8e-21
+  MoLFormer / token occlusion 236  0.947   1.734               1.780                  1.1e-19
+   -> paired_n1only.csv (full table with CIs)
+
+COMPARE these selectivity values against the submitted paper
+(2.99 / 3.12 AttentiveFP, 2.10 MoLFormer, 1.39 random forest).
+If they differ materially, Table 1 and Section 3.2 must be rewritten.
+
+========================================================================
+R4  bit collisions and atom-mapping validation (full dataset)
+========================================================================
+distinct bits used across the dataset : 2047 of 2048
+bits mapping to >1 distinct substructure (collisions): 2039 (99.6% of used bits)
+mean distinct substructures per collided bit: 8.58
+mean environments per set bit within a molecule: 1.56
+
+Two points for the rebuttal:
+ (1) Within a molecule, a bit's attribution is divided equally among ALL
+     atom environments that set it, and among the atoms of each
+     environment, so colliding environments share the mass rather than
+     either receiving it twice. Total attribution is conserved.
+ (2) Attribution is computed by PER-MOLECULE bit occlusion, not from a
+     global per-bit importance. Collisions across the dataset therefore
+     do not transfer importance between unrelated substructures: only the
+     environments actually present in that molecule receive mass.
+
+atom-token alignment checked on 7982 molecules (not 1,500): 0 failures
+
+========================================================================
+R7  enrichment stratified by chemotype and by training-set familiarity
+========================================================================
+NOTE: a scaffold split sends the largest scaffold families to training, so
+every test-fold scaffold is a singleton and "common vs rare scaffold"
+cannot be computed within the test fold. We therefore measure how
+FAMILIAR each test molecule is to the model, as nearest-neighbour Tanimoto
+similarity to the training set, which is what "frequently represented
+chemotype" means operationally here.
+
+nearest-neighbour Tanimoto to training set: median 0.682  range 0.103-0.988
+
+                 model_method  quinazoline acrylamide warhead aminopyrimidine familiarity low (<0.58) familiarity mid (0.58-0.77) familiarity high (>0.77)
+ AttentiveFP / node occlusion 2.80 (n=161)       1.12 (n=115)            n<20             1.38 (n=36)                 2.34 (n=98)             2.27 (n=102)
+   AttentiveFP / grad x input 2.20 (n=161)       1.52 (n=115)            n<20             1.71 (n=36)                 1.91 (n=98)             2.10 (n=102)
+ MoLFormer / integrated grad. 1.11 (n=161)       0.90 (n=115)            n<20             1.12 (n=36)                 0.99 (n=98)             1.01 (n=102)
+        Control: random atoms 0.96 (n=161)       0.98 (n=115)            n<20             1.05 (n=36)                 0.97 (n=98)             0.98 (n=102)
+  Control: random via bit-map 1.05 (n=161)       1.17 (n=115)            n<20             1.22 (n=36)                 1.15 (n=98)             1.00 (n=102)
+Random forest / bit occlusion 2.91 (n=161)       1.32 (n=115)            n<20             2.19 (n=36)                 2.49 (n=98)             2.15 (n=102)
+  MoLFormer / token occlusion 2.50 (n=161)       1.12 (n=115)            n<20             1.62 (n=36)                 2.18 (n=98)             1.85 (n=102)
+
+Read across each row. If enrichment holds in the LOW-familiarity stratum
+and across chemotypes, the result is not an artefact of frequently
+represented chemistry -- which is what the reviewer asks you to show.
+
+========================================================================
+outputs written to /content/project/notebook/results_revision
+   bit_collisions.csv
+   paired_n1n3.csv
+   paired_n1only.csv
+   revision_log.txt
+   stratified_enrichment.csv
+========================================================================
