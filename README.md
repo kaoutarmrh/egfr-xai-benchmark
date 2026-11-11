@@ -99,20 +99,38 @@ resampling uses seed 42 with 2,000 resamples.
 
 ## Software
 
+Two environments are involved, and the distinction matters.
+
+**Re-analysis environment** (Linux, CUDA 13, November 2026) — used for
+`run_13` through `run_16`, i.e. the paired enrichment, the bootstrap intervals,
+the matched-null comparisons and the integrated-gradients sensitivity sweep:
+
 | package | version |
 |---|---|
-| Python | FILL IN |
-| rdkit | FILL IN |
-| torch | FILL IN |
-| torch-geometric | FILL IN |
-| transformers | FILL IN |
-| scikit-learn | FILL IN |
-| xgboost | FILL IN |
-| numpy | FILL IN |
-| scipy | FILL IN |
-| pandas | FILL IN |
+| Python | 3.13.16 |
+| torch | 2.14.1+cu130 |
+| transformers | 5.22.1 |
+| scikit-learn | 1.6.1 |
+| xgboost | 3.4.1 |
+| numpy | 2.4.6 |
+| scipy | 1.16.3 |
+| pandas | 2.2.3 |
+| rdkit | installed from PyPI at run time |
 
-Produce these with:
+**Training environment** (Windows, September 2026) — used for `01` through
+`run_12`, which produced the model checkpoints and the archived attribution
+files. Package versions were not recorded at the time.
+
+This is not pedantry. Integrated gradients at 32 steps gives narrow enrichment
+**1.020** in the archived run and **0.971** when the identical configuration is
+recomputed on the identical 236 compounds in the re-analysis environment. The
+two differ only in machine and library build. A 5% swing in the mean from the
+numerical environment alone is consistent with an estimate whose completeness
+residual is 197%, and it is one of the reasons the paper argues that an
+attribution result should be checked against the method's own guarantee before
+it is interpreted.
+
+Regenerate the table for your own environment with:
 
 ```bash
 python -c "import sys; print('Python', sys.version.split()[0])"
