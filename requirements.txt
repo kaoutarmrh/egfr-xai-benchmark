@@ -1,0 +1,9 @@
+rdkit
+torch
+transformers
+scikit-learn
+xgboost
+numpy
+scipy
+pandas
+matplotlib
