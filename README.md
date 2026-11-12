@@ -83,14 +83,21 @@ compared.
 - **Chemical language models.** Tokens are associated with the atoms they span
   using the tokenizer's offset mappings; multi-character tokens divide their
   attribution among those atoms. `run_17_tokenizer_alignment.py` verifies the
-  mapping on all 7,982 curated molecules: every heavy atom is reached by at
-  least one token, the atom-span count matches the heavy-atom count in every
-  molecule, and no molecule exceeds the 256-token limit, at a mean of 1.000
-  tokens per atom and 1.000 atoms per mapped token. The script also reports the
-  per-molecule **maxima**, which are what would license the stronger statement
-  that the mapping is one-to-one; a mean of 1.000 on its own does not, since it
-  is consistent with compensating deviations. Per-molecule output is in
-  `results/tokenizer_alignment.csv`.
+  mapping on all 7,982 curated molecules: the atom-span count matches the
+  heavy-atom count in every molecule, no molecule exceeds the 256-token limit,
+  and **every heavy atom is covered by exactly one token**, so no atom can
+  receive zero attribution or be counted twice.
+
+  That last claim is checkable from `results/tokenizer_alignment.csv` without
+  re-running anything. Every row has `atoms_without_token == 0`, so each atom
+  has at least one token; every row has `mean_tokens_per_atom == 1.000` and the
+  largest molecule has 103 atoms, so a single extra token anywhere would have
+  pushed that mean to at least 1.010. The two together force exactly one.
+
+  What the published CSV does *not* settle is whether any single token spans
+  more than one atom — the averages are consistent with it. `run_17` now
+  records the per-molecule maxima that would decide it. No claim about it is
+  made in the paper.
 - **Graph models.** Atoms are indexed directly.
 - **Signed attributions.** Gradient methods return signed values. Since the
   enrichment metric asks where a model places weight and is defined for
