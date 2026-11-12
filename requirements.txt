@@ -1,9 +1,22 @@
-rdkit
-torch
-transformers
-scikit-learn
-xgboost
-numpy
-scipy
-pandas
+# Re-analysis environment (Linux, CUDA 13, November 2026).
+# These are the versions under which run_13 through run_17 were executed.
+# Scripts 01-run_12 were run on Windows in September 2026 in an environment
+# whose versions were not recorded; see the Software section of the README.
+
+python>=3.11                  # 3.13.16 used
+numpy==2.4.6
+scipy==1.16.3
+pandas==2.2.3
+scikit-learn==1.6.1
+xgboost==3.4.1
+torch==2.14.1                 # +cu130 build
+transformers==5.22.1
+rdkit                         # installed from PyPI at run time
 matplotlib
+
+# needed by individual scripts
+torch-geometric               # run_06_gnn.py, run_08_xai.py, run_12_seeds.py
+chembl-webresource-client     # 01_build_dataset.py
+shap                          # run_08b_rf_fix.py --verify-shap only; the
+                              # TreeSHAP attributions it produces are NOT used
+                              # in the paper. See the README.

@@ -39,6 +39,7 @@ produce attributions; 13-16 are the analyses added during revision.
 | `run_14_figure_and_stats.py` | Figure 1, assay provenance statistics | CPU |
 | `run_15_null_and_inventory.py` | molecule-matched null comparisons | CPU |
 | `run_16_ig_sensitivity.py` | integrated-gradients baseline and step sensitivity, MoLFormer faithfulness | GPU |
+| `run_17_tokenizer_alignment.py` | tokenizer-offset to heavy-atom alignment check | CPU |
 
 Every analysis script takes `--data egfr_final.csv` and writes to `--outdir`.
 
@@ -79,10 +80,14 @@ compared.
   attribution mass. Across the dataset 2,039 of the 2,047 bits used correspond
   to more than one substructure (8.58 on average), but attribution is computed
   per molecule, where a set bit corresponds to 1.56 environments on average.
-- **Chemical language models.** Canonical SMILES atom tokens are aligned with
-  RDKit atom indices using tokenizer offset mappings; multi-character tokens
-  distribute their attribution over the atoms they span. Alignment was verified
-  on all 7,982 curated molecules with no failures.
+- **Chemical language models.** Tokens are associated with the atoms they span
+  using the tokenizer's offset mappings; multi-character tokens divide their
+  attribution among those atoms. `run_17_tokenizer_alignment.py` verifies the
+  mapping on all 7,982 curated molecules: every heavy atom is reached by at
+  least one token, no molecule exceeds the 256-token limit, and the
+  correspondence is one-to-one in every case, so the division step is never
+  exercised on this dataset. Per-molecule output is in
+  `results/tokenizer_alignment.csv`.
 - **Graph models.** Atoms are indexed directly.
 - **Signed attributions.** Gradient methods return signed values. Since the
   enrichment metric asks where a model places weight and is defined for
@@ -120,18 +125,29 @@ versions were not recorded.
 
 ## Results
 
-`results/` holds the tables behind the paper:
+`results/` holds every number behind the paper. `results/PROVENANCE.md` records
+which files are direct script output and which were rebuilt from run logs after
+a notebook runtime reset.
 
 | file | contents |
 |---|---|
 | `paired_n1n3.csv` | Table 1: broad, narrow and selectivity enrichment with bootstrap 95% CIs, on the matched 236 compounds |
-| `paired_n1only.csv` | the same, against the strict N1-only target |
+| `paired_n1only.csv` | the same, against the strict N1-plus-warhead target |
 | `matched_null.csv` | every model against each molecule-matched null control, paired |
 | `stratified_enrichment.csv` | enrichment by chemotype and by nearest-neighbour similarity to training |
 | `bit_collisions.csv` | per-bit collision counts across the dataset |
-| `ig_sensitivity.csv` | integrated gradients across baselines and step counts |
-| `tf_faithfulness.csv` | MoLFormer ablation |
-| `revision_log.txt` | full console output of the revision analyses |
+| `ig_sensitivity.csv` | integrated gradients across baselines and step counts, with completeness residuals |
+| `tf_faithfulness.csv` | MoLFormer ablation, token occlusion and integrated gradients |
+| `tokenizer_alignment.csv` | per-molecule tokenizer-offset coverage check |
+| `dataset_stats.txt` | assay provenance and replicate agreement, with two caveats on how the numbers were computed |
+| `fig1_attribution_maps.png` | Figure 1 |
+| `revision_log.txt`, `matched_null_log.txt`, `ig_sensitivity_log.txt`, `tokenizer_alignment_log.txt` | full console output of each analysis |
+
+Two numbers in `dataset_stats.txt` deserve their caveats read before use: the
+"cell-based" assay-format count is dominated by false positives (its pattern
+matches "growth" in *epidermal growth factor receptor*) and is not used in the
+paper, and the replicate statistics describe the exact-relation records before
+variant separation and standardisation rather than the final curated set.
 
 ## Citation
 
