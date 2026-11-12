@@ -21,6 +21,11 @@ For every molecule it checks three things:
                  counted, since their attribution is divided among them.
   3. ROUND-TRIP  the atoms recovered through the offset mapping are exactly the
                  molecule's atoms - no atom recovered twice, none invented.
+  4. ARITY       the per-molecule MAXIMUM number of tokens covering any atom and
+                 the MAXIMUM number of atoms spanned by any mapped token. Means
+                 alone cannot establish a one-to-one mapping, since a mean of
+                 1.000 is consistent with compensating deviations. Only the
+                 maxima licence the word "one-to-one".
 
 No GPU and no model weights: the tokenizer alone.
 
@@ -74,7 +79,10 @@ say(f'molecules to check: {len(smiles):,}\n')
 
 rows = []
 n_ok = n_uncovered = n_span_mismatch = n_truncated = n_bad = 0
+n_one_to_one = 0
 tokens_per_atom, atoms_per_token = [], []
+global_max_tpa = global_max_apt = 0
+global_min_tpa = 10**9
 
 for smi in smiles:
     mol = Chem.MolFromSmiles(smi)
@@ -113,6 +121,14 @@ for smi in smiles:
 
     # (3) every atom must receive at least one token
     missing = int((covered == 0).sum())
+
+    # (4) arity: the extremes, not the averages, decide whether the mapping
+    #     is one-to-one. A mean of 1.000 does not establish it.
+    max_tpa = int(covered.max()) if nat else 0
+    min_tpa = int(covered.min()) if nat else 0
+    max_apt = int(max(tok_atom_counts)) if tok_atom_counts else 0
+    one_to_one = bool(max_tpa == 1 and min_tpa == 1 and max_apt == 1)
+
     status = 'ok'
     if truncated:
         status = 'truncated_at_256_tokens'; n_truncated += 1
@@ -123,11 +139,20 @@ for smi in smiles:
         tokens_per_atom.append(covered.mean())
         if tok_atom_counts:
             atoms_per_token.append(float(np.mean(tok_atom_counts)))
+        if one_to_one:
+            n_one_to_one += 1
+        global_max_tpa = max(global_max_tpa, max_tpa)
+        global_min_tpa = min(global_min_tpa, min_tpa)
+        global_max_apt = max(global_max_apt, max_apt)
 
     rows.append(dict(smiles=smi, status=status, n_atoms=nat,
                      n_tokens=len(offsets),
                      atoms_without_token=missing,
-                     mean_tokens_per_atom=round(float(covered.mean()), 3)))
+                     mean_tokens_per_atom=round(float(covered.mean()), 3),
+                     min_tokens_per_atom=min_tpa,
+                     max_tokens_per_atom=max_tpa,
+                     max_atoms_per_token=max_apt,
+                     one_to_one=one_to_one))
 
 out = pd.DataFrame(rows)
 out.to_csv(os.path.join(args.outdir, 'tokenizer_alignment.csv'), index=False)
@@ -147,12 +172,32 @@ if tokens_per_atom:
 if atoms_per_token:
     say(f'{"mean atoms spanned by a mapped token":42s}: {np.mean(atoms_per_token):.3f}')
 
+say('\n' + '-' * 70)
+say('ARITY  (the test that licences the words "one-to-one")')
+say('-' * 70)
+say(f'{"molecules with a strict 1:1 mapping":42s}: {n_one_to_one:,} ({n_one_to_one/max(n_ok,1):.2%} of aligned)')
+say(f'{"MIN tokens covering any atom (over all)":42s}: {global_min_tpa}')
+say(f'{"MAX tokens covering any atom (over all)":42s}: {global_max_tpa}')
+say(f'{"MAX atoms spanned by any mapped token":42s}: {global_max_apt}')
+
+strict = (n_one_to_one == n_ok and n_ok == n
+          and global_min_tpa == 1 and global_max_tpa == 1 and global_max_apt == 1)
+
 say('\nHow to read this:')
 say('  "fully aligned" means every heavy atom was reached by at least one')
 say('  token through the offset mapping, so no atom can silently receive zero')
-say('  attribution. "mean atoms spanned by a mapped token" above 1 is expected:')
-say('  multi-character tokens cover several atoms and divide their attribution')
-say('  among them, which is what the attribution code does.')
-say('\nThis is the claim the paper may make. Anything else must be qualified.')
+say('  attribution. That alone does NOT make the mapping one-to-one: a mean of')
+say('  1.000 tokens per atom is consistent with one atom taking two tokens and')
+say('  another taking none. Only the three MAX/MIN lines above settle it.')
+say('')
+if strict:
+    say('  VERDICT: all three extremes equal 1 on every molecule, so the')
+    say('  mapping IS one-to-one throughout and the paper may say so. The')
+    say('  code path that divides a multi-character token among several atoms')
+    say('  is therefore never exercised on this dataset.')
+else:
+    say('  VERDICT: the extremes are NOT all 1, so the mapping is one-to-one')
+    say('  only on average. The paper must report the observed means and must')
+    say('  NOT claim a one-to-one correspondence.')
 LOG.close()
 print('\nwrote', os.path.join(args.outdir, 'tokenizer_alignment.csv'))

@@ -30,6 +30,11 @@ Needs a GPU (a Colab T4 is enough).  Nothing is retrained.
         --outdir results_revision
 
 Writes: ig_sensitivity.csv, ig_completeness.csv, tf_faithfulness.csv,
+NOTE: ig_completeness.csv is not in this repository. See results/PROVENANCE.md:
+only its median column was recovered after a runtime reset, and that column is
+already in ig_sensitivity.csv, so a half-reconstructed file was not published.
+Re-running this script regenerates it.
+
         ig_sensitivity_log.txt
 """
 
@@ -231,10 +236,22 @@ for kind, steps in SETTINGS:
     keep = ~(np.isnan(enr_n) | np.isnan(enr_b))
     from scipy import stats
     pw = stats.wilcoxon(enr_n[keep] - 1.0).pvalue if keep.sum() > 10 else np.nan
+    # Two different quantities, kept apart on purpose.
+    #   selectivity_paired      = mean of the within-molecule ratios. This is
+    #                             the definition used in run_13_revision.py and
+    #                             reported in Table 1 of the paper.
+    #   selectivity_ratio_of_means = ratio of the two means. Earlier versions of
+    #                             this script reported only this one, under the
+    #                             bare name "selectivity", which invited a
+    #                             comparison with Table 1 that is not valid.
+    #                             It is kept so published numbers stay traceable.
+    _ratio = enr_n[keep] / np.where(enr_b[keep] == 0, np.nan, enr_b[keep])
     row = dict(baseline=kind, steps=steps, n=int(keep.sum()),
                narrow=round(float(enr_n[keep].mean()), 3),
                broad=round(float(enr_b[keep].mean()), 3),
-               selectivity=round(float(enr_n[keep].mean() / enr_b[keep].mean()), 3),
+               selectivity_paired=round(float(np.nanmean(_ratio)), 3),
+               selectivity_ratio_of_means=round(
+                   float(enr_n[keep].mean() / enr_b[keep].mean()), 3),
                p_narrow_vs_chance=float(f'{pw:.2g}'),
                median_completeness_error=round(float(np.median(rel_err)), 3),
                seconds=int(time.time() - t0))
@@ -243,7 +260,9 @@ for kind, steps in SETTINGS:
                           median_rel_error=round(float(np.median(rel_err)), 4),
                           p90_rel_error=round(float(np.percentile(rel_err, 90)), 4)))
     say(f'  {kind:8s} steps={steps:4d}  narrow={row["narrow"]:.3f}  '
-        f'broad={row["broad"]:.3f}  sel={row["selectivity"]:.3f}  '
+        f'broad={row["broad"]:.3f}  '
+        f'sel_paired={row["selectivity_paired"]:.3f}  '
+        f'sel_ratio_of_means={row["selectivity_ratio_of_means"]:.3f}  '
         f'p={row["p_narrow_vs_chance"]:.3g}  '
         f'completeness err={row["median_completeness_error"]:.3f}  '
         f'({row["seconds"]}s)')
