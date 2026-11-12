@@ -44,6 +44,14 @@ now named `selectivity_ratio_of_means` to say which one it is, and
 a column directly comparable with Table 1. The numbers themselves are
 unchanged. Nothing in the paper quotes a selectivity value from this file.
 
+**This file therefore predates that script change, and cannot be brought into
+line with it without re-running the sweep.** `selectivity_paired` is a mean
+over per-molecule ratios; the original run retained only the aggregates, so the
+paired value cannot be derived from anything kept here. Adding the column would
+mean inventing a number that was never computed. The file stays as the record
+of the run that was performed. A reader who wants the paired column runs
+`run_16_ig_sensitivity.py` and gets both.
+
 Two consequences of that reconstruction, stated rather than hidden:
 
 - `tf_faithfulness.csv` omits the per-row `n` column, because the console

@@ -24,3 +24,29 @@ How to read this:
 This is the claim the paper may make. Anything else must be qualified.
 
 wrote results_revision/tokenizer_alignment.csv
+
+----------------------------------------------------------------------
+THIS LOG PREDATES THE CURRENT SCRIPT
+----------------------------------------------------------------------
+run_17_tokenizer_alignment.py has since been extended to record, per molecule,
+the MINIMUM and MAXIMUM number of tokens covering an atom and the MAXIMUM
+number of atoms spanned by any mapped token, and to print an explicit verdict
+on whether the mapping is strictly one-to-one. This log and the accompanying
+tokenizer_alignment.csv come from the earlier version and do not contain those
+columns. Re-running the script regenerates both with them.
+
+What the published files do establish, without a re-run:
+
+  every row has atoms_without_token = 0   -> each atom has at least one token
+  every row has mean_tokens_per_atom = 1.000
+  the largest molecule has 103 heavy atoms
+
+One extra token anywhere in a molecule would raise that molecule's mean to at
+least 1 + 1/103 = 1.010, which cannot round to 1.000. At least one token per
+atom, and an average of exactly one, therefore leaves EXACTLY ONE token per
+atom in every molecule. That is the claim made in Section 2.4 of the paper, and
+it is checkable from tokenizer_alignment.csv alone.
+
+What they do NOT establish is the converse: whether any single token spans more
+than one atom. The paper makes no claim about it. The new MAX columns settle it
+directly.
