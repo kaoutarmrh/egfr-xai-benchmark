@@ -22,7 +22,7 @@ smarts.md    the complete pharmacophore definitions
 ## Reproducing the paper
 
 The pipeline runs in order. Steps 01-07 build the dataset and train; 08-12
-produce attributions; 13-16 are the analyses added during revision.
+produce attributions; 13-17 are the analyses added during revision.
 
 | script | what it does | needs |
 |---|---|---|
@@ -42,6 +42,11 @@ produce attributions; 13-16 are the analyses added during revision.
 | `run_17_tokenizer_alignment.py` | tokenizer-offset to heavy-atom alignment check | CPU |
 
 Every analysis script takes `--data egfr_final.csv` and writes to `--outdir`.
+The curated dataset is published here as **`results/egfr_final.csv`**, so from
+the repository root the analyses run as
+`python scripts/run_13_revision.py --data results/egfr_final.csv --outdir out`.
+Steps 01-03 regenerate that file from ChEMBL; everything from `run_06` onward
+consumes it.
 
 ## A note on TreeSHAP
 
@@ -163,9 +168,17 @@ a notebook runtime reset.
 Two columns need a word of warning. In `ig_sensitivity.csv`,
 `selectivity_ratio_of_means` is `mean(narrow) / mean(broad)` — **not** the
 quantity in Table 1 of the paper, which is the mean of the within-molecule
-ratios. The two are different and should not be compared; `run_16` now emits
-both under distinct names, so a re-run gives a column that is comparable.
-Nothing in the paper quotes a selectivity value from this file.
+ratios. The two are different and should not be compared. Nothing in the paper
+quotes a selectivity value from this file.
+
+`run_16_ig_sensitivity.py` now emits both definitions under distinct names, so
+a re-run produces a `selectivity_paired` column directly comparable with
+Table 1. **The published CSV cannot be given that column without re-running
+the sweep**, which needs a GPU and about two and a half hours: the paired
+quantity is a mean over per-molecule ratios, and only the aggregates were
+retained from the original run, so it cannot be derived from what is here. The
+file is left as the record of the run that was actually performed rather than
+back-filled with a number that was never computed.
 
 Two numbers in `dataset_stats.txt` deserve their caveats read before use: the
 "cell-based" assay-format count is dominated by false positives (its pattern
