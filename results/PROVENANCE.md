@@ -15,9 +15,13 @@ These were written by the scripts and copied here unchanged:
 | `bit_collisions.csv` | `run_13_revision.py` |
 | `revision_log.txt` | `run_13_revision.py` |
 | `tokenizer_alignment.csv` | `run_17_tokenizer_alignment.py` |
+| `tokenizer_alignment_log.txt` | `run_17_tokenizer_alignment.py` |
 
-`tokenizer_alignment_log.txt` is that script's console output, captured verbatim
-from the run rather than redirected to a file.
+Both alignment files come from the current version of the script, the one that
+records the per-molecule minima and maxima and prints an explicit one-to-one
+verdict. An earlier pair, produced before those checks existed, has been
+replaced; nothing in them conflicts with what is here, but they reported only
+averages and the paper's claim now rests on the extremes instead.
 
 ## Reconstructed from run logs
 
