@@ -1,0 +1,59 @@
+==========================================================================
+E  Model enrichment vs molecule-matched null controls (paired)
+==========================================================================
+For every compound the model and the control are scored on the SAME
+molecule and the SAME target, so the comparison is paired within
+compound rather than against a nominal 1.0.
+
+matched compounds: n = 236
+
+                        model                     control   n  model_enrichment  control_enrichment  mean_difference   difference_CI  frac_model_above_control     paired_p
+ AttentiveFP / node occlusion       Control: random atoms 236             2.161               0.983            1.178  [0.967, 1.408]                     0.767 5.200000e-20
+ AttentiveFP / node occlusion Control: random via bit-map 236             2.161               1.096            1.065  [0.844, 1.303]                     0.716 3.100000e-15
+   AttentiveFP / grad x input       Control: random atoms 236             1.961               0.983            0.978  [0.791, 1.168]                     0.737 7.500000e-20
+   AttentiveFP / grad x input Control: random via bit-map 236             1.961               1.096            0.864  [0.684, 1.066]                     0.699 2.000000e-14
+ MoLFormer / integrated grad.       Control: random atoms 236             1.020               0.983            0.037 [-0.057, 0.138]                     0.470 6.900000e-01
+ MoLFormer / integrated grad. Control: random via bit-map 236             1.020               1.096           -0.076 [-0.202, 0.048]                     0.449 1.600000e-01
+Random forest / bit occlusion       Control: random atoms 236             2.297               0.983            1.314  [1.138, 1.482]                     0.826 2.900000e-28
+Random forest / bit occlusion Control: random via bit-map 236             2.297               1.096            1.201  [1.004, 1.389]                     0.788 1.300000e-22
+  MoLFormer / token occlusion       Control: random atoms 236             1.950               0.983            0.967  [0.797, 1.134]                     0.746 3.300000e-20
+  MoLFormer / token occlusion Control: random via bit-map 236             1.950               1.096            0.854  [0.663, 1.048]                     0.699 2.600000e-14
+
+Read: mean_difference is model minus control on the same molecules.
+A difference CI excluding zero means the model beats its own null.
+
+==========================================================================
+INVENTORY  (for the integrated-gradients sensitivity experiment)
+==========================================================================
+
+python scripts present here:
+   check_rf.py                                 2.7 KB
+   common.py                                   8.7 KB
+   run_06_gnn.py                               7.8 KB
+   run_07_transformers.py                      8.0 KB
+   run_08_xai.py                              22.7 KB
+   run_08b_rf_fix.py                           7.5 KB
+   run_09_mechanism.py                        17.1 KB
+   run_10_assemble.py                          9.9 KB
+   run_11_transformer_occlusion.py             8.8 KB
+   run_12_seeds.py                             8.5 KB
+   run_13_revision.py                         17.0 KB
+   run_14_figure_and_stats.py                 12.0 KB
+   run_15_null_and_inventory.py                7.9 KB
+
+results directories:
+   results_final/  -> figures, models, run_log.txt, table2_faithfulness.csv, table3_agreement.csv
+   results_gnn/  -> all_preds.csv, figures, history_attentivefp__gnn_.csv, models, results.csv, run_log.txt, subgroup_scores.json
+   results_mech/  -> ablation.csv, figures, models, narrow_vs_broad.csv, run_log.txt, scaffold_effect.csv
+   results_revision/  -> bit_collisions.csv, dataset_stats.txt, fig1_attribution_maps.png, inventory.txt, matched_null.csv, paired_n1n3.csv, paired_n1only.csv, revision_log.txt
+   results_seeds/  -> figures, models, run_log.txt, seed_runs.csv, seed_summary.csv
+   results_tf/  -> all_preds.csv, figures, history_chemberta_77m_mlm__mean_pool_.csv, history_chemberta_77m_mtr__mean_pool_.csv, history_chemberta_zinc_base__mean_pool_.csv, history_molformer_xl__cls_pool_.csv, history_molformer_xl__mean_pool_.csv, models
+   results_tf_occ/  -> figures, models, run_log.txt, tf_occlusion_attributions.npz, transformer_occlusion.csv
+   results_xai/  -> all_preds.csv, attribution_agreement.csv, attributions.npz, faithfulness.csv, figures, models, results.csv, run_log.txt
+   results_xai_rf/  -> figures, models, rf_attributions.npz, rf_faithfulness.csv, run_log.txt
+   results_xai_test/  -> attribution_agreement.csv, attributions.npz, faithfulness.csv, figures, models, run_log.txt
+
+NOTE: the checkpoint search in this inventory globbed ./ and ../ only and
+therefore reported none. The checkpoints are under results_*/models/, where
+run_08_xai.py writes them; results_tf/models/molformer_xl__cls_pool_.pt was
+used for the sensitivity sweep.

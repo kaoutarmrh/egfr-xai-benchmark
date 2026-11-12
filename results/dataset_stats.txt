@@ -1,0 +1,66 @@
+======================================================================
+R7  figure
+======================================================================
+molecule displayed : Test compound (pIC50 9.66)
+SMILES             : Cn1c(C[N+](C)(C)C/C=C/C(=O)Nc2ccc3ncnc(Nc4cccc(Br)c4)c3c2)ccc1[N+](=O)[O-]
+heavy atoms        : 37
+N1 atom indices    : [17]
+N3 atom indices    : [19]
+warhead carbons    : [8, 9]
+narrow target      : [8, 9, 17, 19]  (10.8% of atoms)
+
+figure -> results_revision/fig1_attribution_maps.png
+panels: Structural reference | Random forest, bit occlusion | AttentiveFP, node occlusion | MoLFormer, token occlusion | MoLFormer, integrated grad.
+
+======================================================================
+R2  assay provenance and replicate reliability
+======================================================================
+raw ChEMBL rows                     : 24,925
+distinct assays                     : 2,264
+distinct source documents           : 1,270
+distinct molecules                  : 14,358
+relation operators                  : {'=': 18454, '>': 3037, '<': 2032, nan: 1307, '<=': 87, '>=': 8}
+censored / non-exact rows removed   : 6,471
+rows flagged mutant (excluded)      : 8,270
+rows retained as wild type          : 16,655
+
+assay format (keyword match on the description, wild-type rows):
+   enzymatic / kinase activity   : 8,596
+   binding / displacement        : 2,247
+   cell-based                    : 5,857
+
+replicate agreement (pChEMBL units):
+   structures with >1 measurement   : 3,665 (35.2% of structures)
+   median spread among replicates   : 0.70
+   mean spread among replicates     : 0.89
+   90th percentile of spread        : 2.20
+   structures dropped (spread > 1)  : 1,274 (12.2% of structures)
+
+final curated dataset                : 7,982 structures
+split sizes                         : {'train': 6385, 'test': 799, 'val': 798}
+
+======================================================================
+done
+
+----------------------------------------------------------------------
+NOTE ON THE ASSAY-FORMAT KEYWORD COUNTS
+----------------------------------------------------------------------
+The three "assay format" counts above are keyword matches against the free-text
+assay description and are NOT a partition: a description can match more than
+one pattern, and the totals exceed the number of rows.
+
+The "cell-based" count in particular is unreliable and is not used in the
+paper. Its pattern included the word "growth", which matches "epidermal GROWTH
+factor receptor" in essentially every EGFR assay description. The figure is
+therefore dominated by false positives from the target's own name.
+
+Only the enzymatic and binding counts are quoted, and only qualitatively: the
+paper states that within ChEMBL assay type B the descriptions span enzymatic
+kinase-inhibition and competition-binding formats.
+
+NOTE ON THE REPLICATE STATISTICS
+----------------------------------------------------------------------
+The replicate figures are computed over the exact-relation records grouped by
+the ChEMBL canonical SMILES, BEFORE wild-type/mutant separation and before
+RDKit standardisation. They describe that population, not the final curated
+wild-type set of 7,982 structures, and the paper says so.

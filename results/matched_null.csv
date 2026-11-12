@@ -1,0 +1,11 @@
+model,control,n,model_enrichment,control_enrichment,mean_difference,difference_CI,frac_model_above_control,paired_p
+AttentiveFP / node occlusion,Control: random atoms,236,2.161,0.983,1.178,"[0.967, 1.408]",0.767,5.2e-20
+AttentiveFP / node occlusion,Control: random via bit-map,236,2.161,1.096,1.065,"[0.844, 1.303]",0.716,3.1e-15
+AttentiveFP / grad x input,Control: random atoms,236,1.961,0.983,0.978,"[0.791, 1.168]",0.737,7.5e-20
+AttentiveFP / grad x input,Control: random via bit-map,236,1.961,1.096,0.864,"[0.684, 1.066]",0.699,2e-14
+MoLFormer / integrated grad.,Control: random atoms,236,1.02,0.983,0.037,"[-0.057, 0.138]",0.47,0.69
+MoLFormer / integrated grad.,Control: random via bit-map,236,1.02,1.096,-0.076,"[-0.202, 0.048]",0.449,0.16
+Random forest / bit occlusion,Control: random atoms,236,2.297,0.983,1.314,"[1.138, 1.482]",0.826,2.9e-28
+Random forest / bit occlusion,Control: random via bit-map,236,2.297,1.096,1.201,"[1.004, 1.389]",0.788,1.3e-22
+MoLFormer / token occlusion,Control: random atoms,236,1.95,0.983,0.967,"[0.797, 1.134]",0.746,3.3e-20
+MoLFormer / token occlusion,Control: random via bit-map,236,1.95,1.096,0.854,"[0.663, 1.048]",0.699,2.6e-14

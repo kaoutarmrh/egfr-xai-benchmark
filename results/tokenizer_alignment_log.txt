@@ -1,0 +1,26 @@
+tokenizer: ibm/MoLFormer-XL-both-10pct
+molecules to check: 7,982
+
+======================================================================
+tokenizer-to-atom offset alignment
+======================================================================
+molecules checked                         : 7,982
+fully aligned                             : 7,982 (100.00%)
+atoms left without any token              : 0
+regex span count != heavy atom count      : 0
+truncated at 256 tokens                   : 0
+unparseable                               : 0
+
+mean tokens covering an atom              : 1.000
+mean atoms spanned by a mapped token      : 1.000
+
+How to read this:
+  "fully aligned" means every heavy atom was reached by at least one
+  token through the offset mapping, so no atom can silently receive zero
+  attribution. "mean atoms spanned by a mapped token" above 1 is expected:
+  multi-character tokens cover several atoms and divide their attribution
+  among them, which is what the attribution code does.
+
+This is the claim the paper may make. Anything else must be qualified.
+
+wrote results_revision/tokenizer_alignment.csv

@@ -1,0 +1,46 @@
+device: cuda
+loaded ibm/MoLFormer-XL-both-10pct from results_tf/models/molformer_xl__cls_pool_.pt (pooling: cls)
+matched compounds (broad AND narrow motif): n = 236
+baselines: zero | pad(id 2) | mask(id 3) | average-embedding
+
+==========================================================================
+C  Integrated gradients: baseline and step-count sensitivity
+==========================================================================
+  zero     steps=  32  narrow=0.971  broad=0.868  sel=1.118  p=0.026  completeness err=1.965  (404s)
+  zero     steps=  64  narrow=1.618  broad=0.829  sel=1.952  p=2.3e-08  completeness err=0.952  (796s)
+  zero     steps= 128  narrow=1.773  broad=0.932  sel=1.902  p=2.3e-19  completeness err=0.938  (1581s)
+  zero     steps= 256  narrow=1.821  broad=0.911  sel=1.999  p=2.9e-18  completeness err=0.671  (3077s)
+  pad      steps=  64  narrow=1.458  broad=1.093  sel=1.334  p=3.5e-08  completeness err=1.588  (766s)
+  mask     steps=  64  narrow=1.576  broad=0.968  sel=1.628  p=4.6e-12  completeness err=0.889  (791s)
+  average  steps=  64  narrow=1.873  broad=0.964  sel=1.942  p=2.6e-23  completeness err=1.714  (782s)
+
+baseline  steps   n  narrow  broad  selectivity  p_narrow_vs_chance  median_completeness_error  seconds
+    zero     32 236   0.971  0.868        1.118        2.600000e-02                      1.965      404
+    zero     64 236   1.618  0.829        1.952        2.300000e-08                      0.952      796
+    zero    128 236   1.773  0.932        1.902        2.300000e-19                      0.938     1581
+    zero    256 236   1.821  0.911        1.999        2.900000e-18                      0.671     3077
+     pad     64 236   1.458  1.093        1.334        3.500000e-08                      1.588      766
+    mask     64 236   1.576  0.968        1.628        4.600000e-12                      0.889      791
+ average     64 236   1.873  0.964        1.942        2.600000e-23                      1.714      782
+
+How to read this:
+  narrow stays ~1.0 everywhere      -> the negative finding is robust;
+                                       it is the model, not the estimator.
+  narrow rises with a better baseline -> the finding was about the zero
+                                       baseline, and the paper must say so.
+  completeness error large (>0.2)   -> the integral has not converged.
+
+==========================================================================
+D  MoLFormer faithfulness by token ablation
+==========================================================================
+  token occlusion        k=10%  top 0.465  random 0.216  ratio 2.16
+  token occlusion        k=20%  top 0.531  random 0.221  ratio 2.40
+  token occlusion        k=30%  top 0.515  random 0.291  ratio 1.77
+  integrated gradients   k=10%  top 0.299  random 0.222  ratio 1.35
+  integrated gradients   k=20%  top 0.374  random 0.248  ratio 1.51
+  integrated gradients   k=30%  top 0.409  random 0.289  ratio 1.42
+
+A ratio above 1 means the attribution identifies inputs the model
+actually uses. Compare with AttentiveFP: 2.56, 2.13, 1.79.
+
+done
