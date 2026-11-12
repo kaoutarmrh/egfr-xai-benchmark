@@ -44,3 +44,17 @@ A ratio above 1 means the attribution identifies inputs the model
 actually uses. Compare with AttentiveFP: 2.56, 2.13, 1.79.
 
 done
+
+----------------------------------------------------------------------
+NOTE ON THE "sel" COLUMN ABOVE
+----------------------------------------------------------------------
+The "sel" value printed here is mean(narrow) / mean(broad): the ratio of the
+two means. Table 1 of the paper, and run_13_revision.py, instead use the mean
+of the within-molecule ratios. These are different quantities and must not be
+compared with each other.
+
+The published table (ig_sensitivity.csv) names the column
+`selectivity_ratio_of_means` to make that explicit, and run_16 has since been
+changed to emit both definitions under distinct names. The numbers above are
+unchanged. No selectivity value from this run is quoted in the paper; the
+paper quotes only the narrow enrichments and the completeness residuals.

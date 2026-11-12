@@ -34,6 +34,16 @@ every value can be checked against the output that produced it.
 | `tf_faithfulness.csv` | `ig_sensitivity_log.txt` (`run_16_ig_sensitivity.py`) |
 | `dataset_stats.txt` | `run_14_figure_and_stats.py` console output |
 
+One column was renamed after publication. In `ig_sensitivity.csv` the column
+originally called `selectivity` is the ratio of the two means
+(`mean(narrow) / mean(broad)`), whereas Table 1 of the paper and
+`run_13_revision.py` use the mean of the within-molecule ratios. These are
+different quantities and should not be compared with each other. The column is
+now named `selectivity_ratio_of_means` to say which one it is, and
+`run_16_ig_sensitivity.py` has been changed to emit both, so a re-run produces
+a column directly comparable with Table 1. The numbers themselves are
+unchanged. Nothing in the paper quotes a selectivity value from this file.
+
 Two consequences of that reconstruction, stated rather than hidden:
 
 - `tf_faithfulness.csv` omits the per-row `n` column, because the console
