@@ -84,9 +84,12 @@ compared.
   using the tokenizer's offset mappings; multi-character tokens divide their
   attribution among those atoms. `run_17_tokenizer_alignment.py` verifies the
   mapping on all 7,982 curated molecules: every heavy atom is reached by at
-  least one token, no molecule exceeds the 256-token limit, and the
-  correspondence is one-to-one in every case, so the division step is never
-  exercised on this dataset. Per-molecule output is in
+  least one token, the atom-span count matches the heavy-atom count in every
+  molecule, and no molecule exceeds the 256-token limit, at a mean of 1.000
+  tokens per atom and 1.000 atoms per mapped token. The script also reports the
+  per-molecule **maxima**, which are what would license the stronger statement
+  that the mapping is one-to-one; a mean of 1.000 on its own does not, since it
+  is consistent with compensating deviations. Per-molecule output is in
   `results/tokenizer_alignment.csv`.
 - **Graph models.** Atoms are indexed directly.
 - **Signed attributions.** Gradient methods return signed values. Since the
@@ -97,7 +100,13 @@ compared.
 
 ## Seeds and determinism
 
-Headline models use seeds 42-46 and are reported as mean +/- standard deviation.
+Three models were trained under five seeds, 42-46, and are reported as mean +/-
+standard deviation: **random forest, XGBoost and AttentiveFP**. The chemical
+language models (ChemBERTa x3, MoLFormer-XL) are reported from a **single
+selected run**, not a seed average, and carry no error bar. The paper says so;
+it is repeated here because the distinction is easy to lose when reading the
+tables.
+
 The scaffold partition is held fixed across seeds because it defines the
 benchmark rather than a source of variance. Controls use seed 0; bootstrap
 resampling uses seed 42 with 2,000 resamples.
@@ -137,11 +146,19 @@ a notebook runtime reset.
 | `stratified_enrichment.csv` | enrichment by chemotype and by nearest-neighbour similarity to training |
 | `bit_collisions.csv` | per-bit collision counts across the dataset |
 | `ig_sensitivity.csv` | integrated gradients across baselines and step counts, with completeness residuals |
+| `egfr_final.csv` | the curated dataset: 7,982 structures with pIC50, pharmacophore annotation and fold assignment |
 | `tf_faithfulness.csv` | MoLFormer ablation, token occlusion and integrated gradients |
 | `tokenizer_alignment.csv` | per-molecule tokenizer-offset coverage check |
 | `dataset_stats.txt` | assay provenance and replicate agreement, with two caveats on how the numbers were computed |
-| `fig1_attribution_maps.png` | Figure 1 |
+| `fig1_attribution_maps.png` | Figure 1 at full resolution — the panels are small at print size, so read them here |
 | `revision_log.txt`, `matched_null_log.txt`, `ig_sensitivity_log.txt`, `tokenizer_alignment_log.txt` | full console output of each analysis |
+
+Two columns need a word of warning. In `ig_sensitivity.csv`,
+`selectivity_ratio_of_means` is `mean(narrow) / mean(broad)` — **not** the
+quantity in Table 1 of the paper, which is the mean of the within-molecule
+ratios. The two are different and should not be compared; `run_16` now emits
+both under distinct names, so a re-run gives a column that is comparable.
+Nothing in the paper quotes a selectivity value from this file.
 
 Two numbers in `dataset_stats.txt` deserve their caveats read before use: the
 "cell-based" assay-format count is dominated by false positives (its pattern
